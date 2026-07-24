@@ -16,6 +16,7 @@ QUERY_FIELD=6
 CLIENT_FIELD=8
 
 GREP_STR="query\["
+UNGREP_DOMAINS="in-addr.arpa$"
 REPORT_LINES=15
 REPORT_DELIM="================================================="
 
@@ -36,9 +37,7 @@ TQ=$(echo "${QUERIES}" | ${WC} -l)
 # SC2016 (info): Expressions don't expand in single quotes, use double quotes for that. <- these are awk quotes, not bash quotes
 # shellcheck disable=SC2016
 TQT=$(echo "${QUERIES}" | ${AWK} '{print $5}' | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
-# shellcheck disable=SC2016
-TL=$(echo "${QUERIES}" | ${AWK} '{print $6}' | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
-# shellcheck disable=SC2016
+TL=$(echo "${QUERIES}" | ${AWK} '{print $6}' | ${GREP} -v ${UNGREP_DOMAINS} | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
 TC=$(echo "${QUERIES}" | ${AWK} '{print $NF}' | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
 
 #cat << END
@@ -63,4 +62,3 @@ ${REPORT_DELIM}
 ${REPORT_DELIM}
 ${TC}
 END
-
