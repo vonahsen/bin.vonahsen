@@ -35,10 +35,11 @@ QUERIES=$(${GREP} "${GREP_STR}" ${DNS_LOG})
 
 TQ=$(echo "${QUERIES}" | ${WC} -l)
 # SC2016 (info): Expressions don't expand in single quotes, use double quotes for that. <- these are awk quotes, not bash quotes
-# shellcheck disable=SC2016
+# shellcheck disable=SC2016  #awk quotes, not bash quotes
 TQT=$(echo "${QUERIES}" | ${AWK} '{print $5}' | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
 # shellcheck disable=SC2016  #awk quotes, not bash quotes
 TL=$(echo "${QUERIES}" | ${AWK} '{print $6}' | ${GREP} -v ${UNGREP_DOMAINS} | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
+# shellcheck disable=SC2016  #awk quotes, not bash quotes
 TC=$(echo "${QUERIES}" | ${AWK} '{print $NF}' | ${SORT} | ${UNIQ} -c | ${SORT} -rn | ${HEAD} -n${REPORT_LINES})
 
 #cat << END
