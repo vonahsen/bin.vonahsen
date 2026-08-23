@@ -16,7 +16,7 @@ QUERY_FIELD=6
 CLIENT_FIELD=8
 
 GREP_STR="query\["
-UNGREP_DOMAINS="in-addr.arpa$"
+UNGREP_DOMAINS="in-addr.arpa$\|resolver.arpa$\|vonahsen.com$"
 REPORT_LINES=15
 REPORT_DELIM="================================================="
 
