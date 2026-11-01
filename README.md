@@ -10,4 +10,6 @@ pre-commit
 dns_stats.sh
 * analyzer for pihole dnsmasq log files.  intended to run via cron, it sends an email with the number of queries, query types, top lookup targets, and top clients
 
+fix_stardarr.sh
+* fix the default paths from the servarr installer script after install
 

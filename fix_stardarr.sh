@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# set -x
+# servarr installer script doesn't seem to take target dirs
+# create a script to fix afterwards
+
+#set -x
 set -ueo pipefail
 
 DEFAULT_OPT=/opt
@@ -12,38 +15,37 @@ MY_LIB=/hoard/opt
 LN=/usr/bin/ln
 RM=/usr/bin/rm
 RSYNC=/usr/bin/rsync
-RSYNC_OPTS="-naq"
+RSYNC_OPTS="-aq"
 
 
-fix_opt() {
+fix_dir() {
 	local _darr=$1
-	local _lower_case_darr=$2
-	local _src=${DEFAULT_OPT}/${_darr}
-	local _dst=${MY_OPT}/${_lower_case_darr}/${_darr}
+	local _dir=$2
+	local _wrong_dir=$3
+	local _right_dir=$4
 
-	echo "Fixing ${_darr} opt."
+	echo "Fixing ${_darr} ${_dir}."
+	if [[ ! -e "${_wrong_dir}" ]]
+	then
+		echo "${_darr} ${_dir} doesn't exist, skipping."
+		return
+	fi
+	if [[ ! -d "${_wrong_dir}" ]]
+	then
+		echo "${_darr} ${_dir} isn't a directory, skipping."
+		return
+	fi
+	if [[ -h "${_wrong_dir}" ]]
+	then
+		echo "${_darr} ${_dir} already seems fixed, skipping."
+		return
+	fi
 	echo "Syncing files:"
-	${RSYNC} ${RSYNC_OPTS} "${_src}" "${_dst}"
+	${RSYNC} "${RSYNC_OPTS}" "${_wrong_dir}" "${_right_dir}"
 	echo "Deleting dir:"
-	${RM} -rf "${_src}"
+	${RM} -rf "${_wrong_dir}"
 	echo "Symlinking dir:"
-	${LN} -s "${_dst}" "${_src}"
-	echo "${_darr} fixed."
-}
-
-fix_lib() {
-	local _darr=$1
-	local _lower_case_darr=$2
-	local _src=${DEFAULT_LIB}/${_lower_case_darr}
-	local _dst=${MY_LIB}/${_lower_case_darr}/data
-
-	echo "Fixing ${_darr} lib."
-	echo "Syncing files:"
-	${RSYNC} ${RSYNC_OPTS} "${_src}" "${_dst}"
-	echo "Deleting dir:"
-	${RM} -rf "${_src}"
-	echo "Symlinking dir:"
-	${LN} -s "${_dst}" "${_src}"
+	${LN} -s "${_right_dir}" "${_wrong_dir}"
 	echo "${_darr} fixed."
 }
 
@@ -51,9 +53,16 @@ fix_lib() {
 for darr in Lidarr Prowlarr Radarr Readarr Sonarr
 do
 	lower_darr=${darr,,}
-	fix_opt "$darr" "$lower_darr"
-	fix_lib "$darr" "$lower_darr"
+	opt_src=${DEFAULT_OPT}/${darr}
+	opt_dst=${MY_OPT}/${lower_darr}/${darr}
+
+	lib_src=${DEFAULT_LIB}/${lower_darr}
+	lib_dst=${MY_LIB}/${lower_darr}/data
+
+	fix_dir "${darr}" "opt" "$opt_src" "$opt_dst"
+	fix_dir "${darr}" "lib" "$lib_src" "$lib_dst"
 
 done
+
 
 
